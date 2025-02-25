@@ -19,3 +19,9 @@ class RecipeCatalog:
             if recipe.title.lower() == title.lower():
                 return recipe
         return None
+
+    def remove_recipe(self, title):
+        self.recipes = [recipe for recipe in self.recipes if recipe.title.lower() != title.lower()]
+
+    def list_all_recipes(self):
+        return self.recipes

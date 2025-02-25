@@ -8,8 +8,10 @@ def display_help():
     print("1. Add a new recipe - Add your favorite recipes to the catalog.")
     print("2. Search for a recipe by title - Find recipes quickly by their title.")
     print("3. View recipe details - Get detailed information about a specific recipe.")
-    print("4. About/Help - View information about the program and how to use it.")
-    print("5. Exit - Exit the application.")
+    print("4. Browse all recipes - List all recipes in the catalog.")
+    print("5. About/Help - View information about the program and how to use it.")
+    print("6. Undo last action - Undo the last action performed.")
+    print("7. Exit - Exit the application.")
 
 def main():
     print("Welcome to the Recipe Catalog!")
@@ -17,14 +19,17 @@ def main():
     print("You can manage your favorite recipes easily through this command-line interface.\n")
 
     catalog = RecipeCatalog()
+    action_stack = []
 
     while True:
         print("\nRecipe Catalog")
         print("1. Add a new recipe")
         print("2. Search for a recipe by title")
         print("3. View recipe details")
-        print("4. About/Help")
-        print("5. Exit")
+        print("4. Browse all recipes")
+        print("5. About/Help")
+        print("6. Undo last action")
+        print("7. Exit")
 
         choice = input("Choose an option: ")
 
@@ -44,6 +49,7 @@ def main():
                     continue
                 recipe = Recipe(title, ingredients.split(','), instructions)
                 catalog.add_recipe(recipe)
+                action_stack.append(('add', recipe))
                 print("Recipe added successfully!")
                 break
         
@@ -60,6 +66,15 @@ def main():
                         print(f"- {recipe.title}")
                 else:
                     print("No recipes found with that title.")
+                    browse_choice = input("Would you like to browse all recipes instead? (y/n): ")
+                    if browse_choice.lower() == 'y':
+                        all_recipes = catalog.list_all_recipes()
+                        if all_recipes:
+                            print("All recipes:")
+                            for recipe in all_recipes:
+                                print(f"- {recipe.title}")
+                        else:
+                            print("No recipes available.")
                 break
         
         elif choice == '3':
@@ -80,9 +95,28 @@ def main():
                     break
         
         elif choice == '4':
-            display_help()
+            all_recipes = catalog.list_all_recipes()
+            if all_recipes:
+                print("All recipes:")
+                for recipe in all_recipes:
+                    print(f"- {recipe.title}")
+            else:
+                print("No recipes available.")
         
         elif choice == '5':
+            display_help()
+        
+        elif choice == '6':
+            if action_stack:
+                last_action = action_stack.pop()
+                if last_action[0] == 'add':
+                    catalog.remove_recipe(last_action[1].title)
+                    print("Last action undone: Recipe removed.")
+                # Add more undo actions here if needed
+            else:
+                print("No actions to undo.")
+        
+        elif choice == '7':
             print("Exiting the program.")
             break
         
