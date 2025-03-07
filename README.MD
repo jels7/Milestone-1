@@ -36,18 +36,23 @@ To start the main program and microservices, you can use the following commands:
 
 2. **Start Microservice B**:
 
-````sh
+```sh
 python microserviceB.py
 
+```
+
 3. **Start Microservice C**:
+
 ```sh
 python microserviceC.py
+```
 
 4. **Start Microservice D**:
+
 ```sh
 python microserviceD.py
 
-````
+```
 
 3. **Run the Main Program**:
 
