@@ -29,10 +29,10 @@ To start the main program and microservices, you can use the following commands:
 
 1. **Start Microservice A**:
 
-   ```sh
-   python microserviceA.py
+```sh
+python microserviceA.py
 
-   ```
+```
 
 2. **Start Microservice B**:
 
