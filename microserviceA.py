@@ -4,8 +4,8 @@ app = Flask(__name__)
 
 # Sample recipe storage
 recipes = {
-    1: {"name": "Pasta", "ingredients": ["noodles", "tomato sauce"]},
-    2: {"name": "Salad", "ingredients": ["lettuce", "tomato", "cucumber"]}
+    1: {"name": "Pasta", "ingredients": ["noodles", "tomato sauce"], "category": "Italian"},
+    2: {"name": "Salad", "ingredients": ["lettuce", "tomato", "cucumber"], "category": "Vegetarian"}
 }
 
 # Route to edit an existing recipe
@@ -15,10 +15,11 @@ def edit_recipe():
     recipe_id = data.get("id")
     new_name = data.get("name")
     new_ingredients = data.get("ingredients")
+    new_category = data.get("category")
 
     # Check if the recipe exists and update it
     if recipe_id in recipes:
-        recipes[recipe_id] = {"name": new_name, "ingredients": new_ingredients}
+        recipes[recipe_id] = {"name": new_name, "ingredients": new_ingredients, "category": new_category}
         return jsonify({"message": "Recipe updated", "recipe": recipes[recipe_id]})
     return jsonify({"error": "Recipe not found"}), 404
 
