@@ -1,3 +1,4 @@
+import requests
 from recipes import Recipe, RecipeCatalog
 
 def display_help():
@@ -9,9 +10,49 @@ def display_help():
     print("2. Search for a recipe by title - Find recipes quickly by their title.")
     print("3. View recipe details - Get detailed information about a specific recipe.")
     print("4. Browse all recipes - List all recipes in the catalog.")
-    print("5. About/Help - View information about the program and how to use it.")
-    print("6. Undo last action - Undo the last action performed.")
-    print("7. Exit - Exit the application.")
+    print("5. Edit a recipe - Edit an existing recipe.")
+    print("6. Delete a recipe - Delete an existing recipe.")
+    print("7. About/Help - View information about the program and how to use it.")
+    print("8. Exit - Exit the application.")
+
+def edit_recipe(catalog):
+    recipe_id = int(input("Enter the recipe ID to edit: "))
+    recipe = catalog.get_recipe_by_id(recipe_id)
+    if not recipe:
+        print("Recipe not found.")
+        return
+
+    new_name = input(f"Enter the new recipe name (current: {recipe.title}): ")
+    new_ingredients = input(f"Enter the new ingredients (comma-separated, current: {', '.join(recipe.ingredients)}): ").split(',')
+
+    response = requests.post('http://localhost:5000/edit_recipe', json={
+        "id": recipe_id,
+        "name": new_name,
+        "ingredients": new_ingredients
+    })
+
+    if response.status_code == 200:
+        print("Recipe updated successfully!")
+        updated_recipe = response.json().get("recipe")
+        recipe.title = updated_recipe["name"]
+        recipe.ingredients = updated_recipe["ingredients"]
+    else:
+        print("Error:", response.json().get("error"))
+
+def delete_recipe(catalog):
+    recipe_id = int(input("Enter the recipe ID to delete: "))
+    recipe = catalog.get_recipe_by_id(recipe_id)
+    if not recipe:
+        print("Recipe not found.")
+        return
+
+    response = requests.post('http://localhost:5000/delete_recipe', json={"id": recipe_id})
+
+    if response.status_code == 200:
+        catalog.remove_recipe(recipe_id)
+        print("Recipe deleted successfully!")
+    else:
+        print("Error:", response.json().get("error"))
 
 def main():
     print("Welcome to the Recipe Catalog!")
@@ -27,9 +68,10 @@ def main():
         print("2. Search for a recipe by title")
         print("3. View recipe details")
         print("4. Browse all recipes")
-        print("5. About/Help")
-        print("6. Undo last action")
-        print("7. Exit")
+        print("5. Edit a recipe")
+        print("6. Delete a recipe")
+        print("7. About/Help")
+        print("8. Exit")
 
         choice = input("Choose an option: ")
 
@@ -47,10 +89,10 @@ def main():
                 if not instructions:
                     print("Instructions cannot be empty. Please try again.")
                     continue
-                recipe = Recipe(title, ingredients.split(','), instructions)
+                recipe = Recipe(None, title, ingredients.split(','), instructions)
                 catalog.add_recipe(recipe)
                 action_stack.append(('add', recipe))
-                print("Recipe added successfully!")
+                print(f"Recipe added successfully with ID {recipe.recipe_id}!")
                 break
         
         elif choice == '2':
@@ -63,7 +105,7 @@ def main():
                 if results:
                     print("Recipes found:")
                     for recipe in results:
-                        print(f"- {recipe.title}")
+                        print(f"- {recipe.recipe_id}: {recipe.title}")
                 else:
                     print("No recipes found with that title.")
                     browse_choice = input("Would you like to browse all recipes instead? (y/n): ")
@@ -72,7 +114,7 @@ def main():
                         if all_recipes:
                             print("All recipes:")
                             for recipe in all_recipes:
-                                print(f"- {recipe.title}")
+                                print(f"- {recipe.recipe_id}: {recipe.title}")
                         else:
                             print("No recipes available.")
                 break
@@ -85,6 +127,7 @@ def main():
                     continue
                 recipe = catalog.get_recipe_details(title)
                 if recipe:
+                    print(f"ID: {recipe.recipe_id}")
                     print(f"Title: {recipe.title}")
                     print(f"Ingredients: {', '.join(recipe.ingredients)}")
                     print(f"Instructions: {recipe.instructions}")
@@ -99,24 +142,20 @@ def main():
             if all_recipes:
                 print("All recipes:")
                 for recipe in all_recipes:
-                    print(f"- {recipe.title}")
+                    print(f"- {recipe.recipe_id}: {recipe.title}")
             else:
                 print("No recipes available.")
         
         elif choice == '5':
-            display_help()
+            edit_recipe(catalog)
         
         elif choice == '6':
-            if action_stack:
-                last_action = action_stack.pop()
-                if last_action[0] == 'add':
-                    catalog.remove_recipe(last_action[1].title)
-                    print("Last action undone: Recipe removed.")
-                # Add more undo actions here if needed
-            else:
-                print("No actions to undo.")
+            delete_recipe(catalog)
         
         elif choice == '7':
+            display_help()
+        
+        elif choice == '8':
             print("Exiting the program.")
             break
         
