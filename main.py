@@ -13,8 +13,10 @@ def display_help():
     print("5. Edit a recipe - Edit an existing recipe.")
     print("6. Delete a recipe - Delete an existing recipe.")
     print("7. Search recipes by ingredient - Find recipes that use a specific ingredient.")
-    print("8. About/Help - View information about the program and how to use it.")
-    print("9. Exit - Exit the application.")
+    print("8. Submit a review - Rate and review a recipe.")
+    print("9. View reviews - View ratings and reviews for a recipe.")
+    print("10. About/Help - View information about the program and how to use it.")
+    print("11. Exit - Exit the application.")
 
 def search_by_ingredient():
     ingredient = input("Enter the ingredient to search for: ")
@@ -31,7 +33,44 @@ def search_by_ingredient():
     else:
         print("Error:", response.json().get("error"))
 
+def submit_review():
+    recipe_id = int(input("Enter the recipe ID to review: "))
+    rating = int(input("Enter your rating (1-5): "))
+    review = input("Enter your review: ")
 
+    response = requests.post('http://localhost:5002/submit_review', json={
+        "id": recipe_id,
+        "rating": rating,
+        "review": review
+    })
+
+    if response.status_code == 200:
+        print("Review submitted successfully!")
+    else:
+        print("Error:", response.json().get("error"))
+
+def view_reviews():
+    recipe_id = int(input("Enter the recipe ID to view reviews: "))
+    response = requests.get(f'http://localhost:5002/get_reviews?id={recipe_id}')
+
+    if response.status_code == 200:
+        data = response.json()
+        average_rating = data.get("average_rating")
+        reviews = data.get("reviews")
+
+        if average_rating is not None:
+            print(f"Average Rating: {average_rating:.2f}")
+        else:
+            print("No reviews yet.")
+
+        if reviews:
+            print("Reviews:")
+            for review in reviews:
+                print(f"- Rating: {review['rating']}, Review: {review['review']}")
+        else:
+            print("No reviews yet.")
+    else:
+        print("Error:", response.json().get("error"))
 
 def edit_recipe(catalog):
     recipe_id = int(input("Enter the recipe ID to edit: "))
@@ -92,8 +131,10 @@ def main():
         print("5. Edit a recipe")
         print("6. Delete a recipe")
         print("7. Search recipes by ingredient")
-        print("8. About/Help")
-        print("9. Exit")
+        print("8. Submit a review")
+        print("9. View reviews")
+        print("10. About/Help")
+        print("11. Exit")
 
         choice = input("Choose an option: ")
 
@@ -180,9 +221,15 @@ def main():
             search_by_ingredient()
         
         elif choice == '8':
-            display_help()
+            submit_review()
         
         elif choice == '9':
+            view_reviews()
+        
+        elif choice == '10':
+            display_help()
+        
+        elif choice == '11':
             print("Exiting the program.")
             break
         
