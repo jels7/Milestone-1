@@ -15,8 +15,9 @@ def display_help():
     print("7. Search recipes by ingredient - Find recipes that use a specific ingredient.")
     print("8. Submit a review - Rate and review a recipe.")
     print("9. View reviews - View ratings and reviews for a recipe.")
-    print("10. About/Help - View information about the program and how to use it.")
-    print("11. Exit - Exit the application.")
+    print("10. Manage shopping list - Add or remove ingredients from your shopping list.")
+    print("11. About/Help - View information about the program and how to use it.")
+    print("12. Exit - Exit the application.")
 
 def search_by_ingredient():
     ingredient = input("Enter the ingredient to search for: ")
@@ -69,6 +70,53 @@ def view_reviews():
                 print(f"- Rating: {review['rating']}, Review: {review['review']}")
         else:
             print("No reviews yet.")
+    else:
+        print("Error:", response.json().get("error"))
+
+def add_to_shopping_list(catalog):
+    user_id = input("Enter your user ID: ")
+    recipe_id = int(input("Enter the recipe ID to add ingredients to the shopping list: "))
+    recipe = catalog.get_recipe_by_id(recipe_id)
+    if not recipe:
+        print("Recipe not found.")
+        return
+
+    response = requests.post('http://localhost:5003/add_to_shopping_list', json={
+        "user_id": user_id,
+        "ingredients": recipe.ingredients
+    })
+
+    if response.status_code == 200:
+        print("Ingredients added to shopping list!")
+    else:
+        print("Error:", response.json().get("error"))
+
+def view_shopping_list():
+    user_id = input("Enter your user ID: ")
+    response = requests.get(f'http://localhost:5003/get_shopping_list?user_id={user_id}')
+
+    if response.status_code == 200:
+        shopping_list = response.json().get("shopping_list")
+        if shopping_list:
+            print("Shopping List:")
+            for ingredient in shopping_list:
+                print(f"- {ingredient}")
+        else:
+            print("Your shopping list is empty.")
+    else:
+        print("Error:", response.json().get("error"))
+
+def remove_from_shopping_list():
+    user_id = input("Enter your user ID: ")
+    ingredients = input("Enter the ingredients to remove (comma-separated): ").split(',')
+
+    response = requests.post('http://localhost:5003/remove_from_shopping_list', json={
+        "user_id": user_id,
+        "ingredients": ingredients
+    })
+
+    if response.status_code == 200:
+        print("Ingredients removed from shopping list!")
     else:
         print("Error:", response.json().get("error"))
 
@@ -133,8 +181,9 @@ def main():
         print("7. Search recipes by ingredient")
         print("8. Submit a review")
         print("9. View reviews")
-        print("10. About/Help")
-        print("11. Exit")
+        print("10. Manage shopping list")
+        print("11. About/Help")
+        print("12. Exit")
 
         choice = input("Choose an option: ")
 
@@ -227,9 +276,29 @@ def main():
             view_reviews()
         
         elif choice == '10':
-            display_help()
+            print("\nShopping List Management")
+            print("1. Add ingredients to shopping list")
+            print("2. View shopping list")
+            print("3. Remove ingredients from shopping list")
+            print("4. Back to main menu")
+
+            shopping_choice = input("Choose an option: ")
+
+            if shopping_choice == '1':
+                add_to_shopping_list(catalog)
+            elif shopping_choice == '2':
+                view_shopping_list()
+            elif shopping_choice == '3':
+                remove_from_shopping_list()
+            elif shopping_choice == '4':
+                continue
+            else:
+                print("Invalid choice. Please try again.")
         
         elif choice == '11':
+            display_help()
+        
+        elif choice == '12':
             print("Exiting the program.")
             break
         
