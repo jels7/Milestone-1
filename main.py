@@ -163,6 +163,19 @@ def delete_recipe(catalog):
         print("Error:", response.json().get("error"))
 
 def main():
+    print(r"""
+   _____           _               _____      _        _              
+ |  __ \         (_)             / ____|    | |      | |             
+ | |__) |___  ___ _ _ __   ___  | |     __ _| |_ __ _| | ___   __ _  
+ |  _  // _ \/ __| | '_ \ / _ \ | |    / _` | __/ _` | |/ _ \ / _` | 
+ | | \ \  __/ (__| | |_) |  __/ | |___| (_| | || (_| | | (_) | (_| | 
+ |_|  \_\___|\___|_| .__/ \___|  \_____\__,_|\__\__,_|_|\___/ \__, | 
+                   | |                                         __/ | 
+                   |_|                                        |___/  
+
+ 
+                                     
+    """)
     print("Welcome to the Recipe Catalog!")
     print("This program allows you to add, search, and view recipes.")
     print("You can manage your favorite recipes easily through this command-line interface.\n")
